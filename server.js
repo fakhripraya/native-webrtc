@@ -8,13 +8,15 @@ const io = socket(server);
 const rooms = {};
 
 io.on("connection", socket => {
-    socket.on("join room", roomID => {
-        if (rooms[roomID]) {
-            rooms[roomID].push(socket.id);
-        } else {
-            rooms[roomID] = [socket.id];
-        }
-        const otherUser = rooms[roomID].find(id => id !== socket.id);
+    socket.on("join room", (userJoin, roomCode) => {
+
+        console.log(newSocket)
+        console.log(rooms)
+        if (!rooms[roomCode]) rooms[roomCode] = [];
+        if (rooms[roomCode].find(user => user.id === userJoin.id)) return;
+
+        rooms[roomCode].push(userJoin);
+        const otherUser = rooms[roomCode].find(user => user.id !== userJoin.id);
         if (otherUser) {
             socket.emit("other user", otherUser);
             socket.to(otherUser).emit("user joined", socket.id);
@@ -34,5 +36,5 @@ io.on("connection", socket => {
     });
 });
 
-
-server.listen(8000, () => console.log('server is running on port 8000'));
+const port = process.env.PORT || 8000
+server.listen(8000, () => console.log(`server is running on port ${port}`));
